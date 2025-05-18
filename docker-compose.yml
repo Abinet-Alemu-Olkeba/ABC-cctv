@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    restart: always
+    ports:
+      - "5000:5000"
+    environment:
+      - SESSION_SECRET=replace_this_with_a_secure_secret
+      - DATABASE_URL=postgresql://shinobi:shinobi_password@db:5432/shinobi
+      - FLASK_APP=main.py
+      - FLASK_SECRET_KEY=another_secure_key_here
+    depends_on:
+      - db
+    volumes:
+      - ./static/uploads:/app/static/uploads
+    networks:
+      - shinobi-network
+
+  db:
+    image: postgres:15-alpine
+    restart: always
+    environment:
+      - POSTGRES_USER=shinobi
+      - POSTGRES_PASSWORD=shinobi_password
+      - POSTGRES_DB=shinobi
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    ports:
+      - "5432:5432"
+    networks:
+      - shinobi-network
+
+volumes:
+  postgres_data:
+
+networks:
+  shinobi-network:
+    driver: bridge
